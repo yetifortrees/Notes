@@ -78,11 +78,11 @@ Template.notesContent.events({
         Session.set("activeNote", activeNote);
         Session.set("Notes", notes);
     },
-    //if the save note button is pressed
+    //if the delete note button is pressed
     'click .delete-note': function (event) {
         var notes = Session.get("Notes");
         var activeNote = Session.get("activeNote");
-        //find out which note we are and save it
+        //find out which note we are and delete it
         var toDelete = -1;
         notes.forEach(function (object, index, array) {
             if (object.id == activeNote.id) {
