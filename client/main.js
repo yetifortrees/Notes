@@ -4,20 +4,19 @@ import { Meteor } from 'meteor/meteor';
 import { jquery } from 'meteor/jquery';
 import './main.html';
 var newID = 0;
-/**
- * This is a template for the main user table where a paginated
- * form of all of the users can be found, along with basic info
- */
+
+//what to do when created
 Template.notesSide.onCreated(function onCreate() {
     Session.set("Notes", []);
     Session.set("activeNote", {});
 });
-//helper functions for the user table
+//helper functions for the Notes navigation table
 Template.notesSide.helpers({
-    //returns all of the users
+    //returns all of the notes
     Notes() {
       return Session.get("Notes");
     },
+    //formats the notes table
     NotesSettings() {
         return {
             showFilter: false,
@@ -35,8 +34,8 @@ Template.notesSide.events({
     //if the user clicks a table row that row is set to active
     'click .reactive-table tbody tr': function (event) {
         Session.set('activeNote', this);
-        $()
     },
+    //if the user clicks the new note button then a new note is generated
     'click .new-note': function (event) {
         var notes = Session.get("Notes");
         notes.push({title: "new " + newID, id: newID, lastMod: (new Date()).toUTCString()});
@@ -47,14 +46,17 @@ Template.notesSide.events({
 
 //this handles the templates events
 Template.notesContent.events({
+    //if the side bar menu is toggled
     'click .menu-toggle': function (event) {
         event.preventDefault();
         $("#wrapper").toggleClass("toggled");
     },
+    //if the save note button is pressed
     'click .save-note': function (event) {
         var notes = Session.get("Notes");
         var activeNote = Session.get("activeNote")
         var found = false;
+        //find out which note we are and save it
         notes.forEach(function (object, index, array) {
             if (object.id == activeNote.id) {
                 found = true;
@@ -64,6 +66,7 @@ Template.notesContent.events({
                 notes[index] = activeNote;
             }
         });
+        //if we didn't find a note then we're a new note somehow
         if (!found) {
             activeNote.title = $("#title").val();
             activeNote.content = $("#note-content").val();
@@ -74,9 +77,25 @@ Template.notesContent.events({
         }
         Session.set("activeNote", activeNote);
         Session.set("Notes", notes);
+    },
+    //if the save note button is pressed
+    'click .delete-note': function (event) {
+        var notes = Session.get("Notes");
+        var activeNote = Session.get("activeNote");
+        //find out which note we are and save it
+        var toDelete = -1;
+        notes.forEach(function (object, index, array) {
+            if (object.id == activeNote.id) {
+                toDelete = index;
+            }
+        });
+        if (toDelete != -1) notes.splice(toDelete, 1);
+        console.log(notes);
+        Session.set("activeNote", {});
+        Session.set("Notes", notes);
     }
 });
-
+//helper functions for the note editor
 Template.notesContent.helpers({
     title() {
         return Session.get("activeNote").title;
